@@ -1,0 +1,21 @@
+# Arduino build artifacts
+*.elf
+*.bin
+*.hex
+*.map
+build/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Data files (flight logs — add these manually if desired)
+*.csv
+*.TXT
+
+# Editor files
+*.swp
+.vscode/
