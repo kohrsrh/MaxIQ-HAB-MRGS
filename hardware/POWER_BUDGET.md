@@ -10,7 +10,7 @@ All science electronics run from the Domino4 PLA xChip loaded with a single 1865
 | LoRa TX peak | ~120 mA | Only during 30-sec transmission burst |
 | All xChip sensors | ~30 mA | Combined (IGA, IIA, IWA, IWB, ILB) |
 | KX132 | ~1 mA | |
-| MMC5983MA | ~2 mA | |
+| TMAG5273 | ~2.3 mA | Active mode |
 | AS7265x Triad | ~5 mA | Passive mode, LEDs disabled |
 | OpenLog | ~20 mA | |
 | Geiger SEN0463 | ~20 mA | |

@@ -22,7 +22,7 @@ This project turns the MaxIQ MK10 CubeSat Remote Sensing Kit into a fully instru
 ### Core Platform
 | Component | Part | Notes |
 |-----------|------|-------|
-| Flight Computer | Domino4 CWV Extended Core | ESP32-WROOM-32 |
+| Flight Computer | Domino4 CWV Extended Core v1-4 | ESP32-WROOM-32 |
 | Programmer | Domino4 PPU xChip | USB-A programming interface |
 | Battery | Domino4 PLA xChip (18650) | Powers all electronics ~9 hr |
 
@@ -38,14 +38,14 @@ This project turns the MaxIQ MK10 CubeSat Remote Sensing Kit into a fully instru
 | INA | Quectel L76-L-M33 GPS | Position, Altitude, Speed | 0x10 |
 | ODA | SSD1306 OLED 128x64 | Live sensor display | 0x3C |
 
-### IPP Breadboard Sensors (jumper wire connections)
-| Sensor | Part | Measures | Connection |
-|--------|------|----------|-----------|
-| SparkFun KX132-1211 | SEN-17871 | Acceleration ±16g | I2C 0x1F |
-| SparkFun MMC5983MA | SEN-19895 | Magnetic field strength | I2C 0x30 |
-| SparkFun AS7265x Triad | SEN-15050 | 18-channel UV/Vis/NIR spectrum | I2C 0x49 |
-| DFRobot SEN0463 | Geiger counter | Ionizing radiation (CPM) | GPIO 43 |
-| SparkFun OpenLog | DEV-13712 | CSV data logger to microSD | Serial2 GPIO 17 |
+### IPB xBus Prototyping Board Sensors (soldered connections)
+| Sensor | Board | Measures | Connection |
+|--------|-------|----------|-----------|
+| SparkFun KX132-1211 | IPB-A | Acceleration ±16g | I2C 0x1F |
+| SparkFun TMAG5273 | IPB-A | Magnetic field strength | I2C 0x22 |
+| SparkFun AS7265x Triad | IPB-A | 18-channel UV/Vis/NIR spectrum | I2C 0x49 |
+| DFRobot SEN0463 | IPB-A | Ionizing radiation (CPM) | GPIO 43 |
+| SparkFun OpenLog | IPB-B | CSV data logger to microSD | Serial2 GPIO 17 |
 
 ### Power System
 | Circuit | Powers | Battery |
@@ -61,10 +61,10 @@ This project turns the MaxIQ MK10 CubeSat Remote Sensing Kit into a fully instru
 HAB_FlightStation/
 ├── firmware/
 │   └── HAB_FlightStation/
-│       └── HAB_FlightStation.ino   # Main flight firmware (v3.3)
+│       └── HAB_FlightStation.ino   # Main flight firmware (v3.4)
 ├── docs/
 │   ├── BUILD_GUIDE.md              # Step-by-step assembly and wiring
-│   ├── WIRING.md                   # IPP wiring reference tables
+│   ├── WIRING.md                   # IPB wiring reference tables
 │   ├── LIBRARIES.md                # All required libraries with install notes
 │   ├── UPLOADING.md                # How to upload firmware to the CWV
 │   ├── PREFLIGHT.md                # Launch day checklist
@@ -93,7 +93,7 @@ Install all via **Sketch → Include Library → Manage Libraries** in Arduino I
 | 3 | SparkFun LIS2DH12 Arduino Library | SparkFun |
 | 4 | Adafruit SHT31 Library | Adafruit |
 | 5 | SparkFun KX13X Arduino Library | SparkFun |
-| 6 | SparkFun MMC5983MA Arduino Library | SparkFun |
+| 6 | SparkFun TMAG5273 Arduino Library | SparkFun |
 | 7 | SparkFun AS7265X Arduino Library | SparkFun |
 | 8 | Adafruit GPS Library | Adafruit |
 | 9 | Freenove WS2812 Lib for ESP32 | Freenove |
@@ -104,8 +104,9 @@ Manual ZIP install: [SPL06-007](https://github.com/rv701/SPL06-007)
 ### Arduino IDE Board Settings
 ```
 Board:        esp32 → ESP32 Dev Module
-Port:         COM7 (or your assigned port)
-Upload Speed: 115200
+Port:         COM3 (or your assigned port)
+Upload Speed: 460800
+PSRAM:        QSPI PSRAM
 ```
 
 > ⚠️ **Always unsnap all xChips except PPU + CWV before uploading.** Remove SD card from OpenLog too.
@@ -116,7 +117,7 @@ Upload Speed: 115200
 3. Set board to **ESP32 Dev Module**
 4. Select the correct COM port
 5. Click Upload — wait for `Hash of data verified`
-6. Snap all xChips back on and reconnect IPP sensors
+6. Snap all xChips back on
 
 ---
 
@@ -171,9 +172,8 @@ Configured for **433.775 MHz** — adjust `LORA_FREQ` in the firmware to match y
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| CWV built-in SD slot | Abandoned | Replaced by SparkFun OpenLog on IPP |
-| Serial monitor garbage output | Workaround | Use OpenLog CSV — serial not needed |
-| KX132 + MMC5983MA | On order | Wire to IPP when received |
+| CWV built-in SD slot | Abandoned | Replaced by SparkFun OpenLog on IPB-B |
+| Serial monitor during flight | Not used | Use OpenLog CSV for all data recovery |
 | GPS HAB mode | Auto-enabled | `$PMTK886,3` sent at every startup |
 | LoRa frequency | Pending test | Confirm 433.775 MHz matches TinyGS GS |
 | OLED freeze on missing sensors | Fixed in v3.2 | Per-sensor OK flags prevent blocking |

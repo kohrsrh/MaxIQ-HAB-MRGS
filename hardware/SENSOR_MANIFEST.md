@@ -14,16 +14,26 @@ Complete inventory of all sensors in the HAB Flight Station payload.
 | INA — Quectel L76 | xChip | xBus | GPS Position, Altitude, Speed (80 km limit) | 0x10 |
 | ODA — SSD1306 | xChip | xBus | OLED display — live sensor readout | 0x3C |
 
-## IPP Breadboard Sensors (jumper wire connections)
+## IPB-A Sensors (soldered to IPB xBus prototyping board)
 
-| Sensor | Location | Measures | Connection | SparkFun SKU |
-|--------|----------|----------|-----------|--------------|
-| KX132-1211 | IPP jumper wires | Acceleration up to 16g | I2C 0x1F | SEN-17871 |
-| MMC5983MA | IPP jumper wires | Magnetic field strength + direction | I2C 0x30 | SEN-19895 |
-| AS7265x Triad | IPP jumper wires | Full spectrum UV/Vis/NIR — 18 channels | I2C 0x49 | SEN-15050 |
-| DFRobot SEN0463 | IPP jumper wires | Ionizing radiation (CPM) | GPIO 43 | — |
-| SparkFun OpenLog | IPP jumper wires | Data logger — writes CSV to microSD | Serial2 GPIO 17 | DEV-13712 |
-| EL4 SX1278 | xChip | xBus | LoRa 433MHz telemetry to TinyGS | SPI | — |
+| Sensor | Measures | Connection | SparkFun SKU |
+|--------|----------|-----------|--------------|
+| KX132-1211 | Acceleration up to ±16g | I2C 0x1F | SEN-17871 |
+| TMAG5273 | Magnetic field strength + direction | I2C 0x22 | SEN-22932 |
+| AS7265x Triad | Full spectrum UV/Vis/NIR — 18 channels | I2C 0x49 | SEN-15050 |
+| DFRobot SEN0463 | Ionizing radiation (CPM) | GPIO 43 | — |
+
+## IPB-B Sensors (soldered to IPB xBus prototyping board)
+
+| Sensor | Measures | Connection | SparkFun SKU |
+|--------|----------|-----------|--------------|
+| SparkFun OpenLog | Data logger — writes CSV to microSD | Serial2 GPIO 17 | DEV-13712 |
+
+## LoRa
+
+| Sensor | xChip | Measures | Connection |
+|--------|-------|----------|-----------|
+| EL4 SX1278 | xChip | LoRa 433MHz telemetry to TinyGS | SPI |
 
 ## Notes on Redundancy
 
@@ -35,10 +45,12 @@ This provides cross-validation: if both agree, readings are trustworthy. If they
 
 ## Notes on Magnetometer
 
-The MMC5983MA logs:
+The TMAG5273 logs:
 - **Raw field strength magnitude** (`sqrt(X² + Y² + Z²)`) — scientifically useful, shows how field varies with altitude
-- **Raw X/Y/Z values** — useful for analyzing payload spin rate (the oscillating pattern reveals rotation)
+- **Raw X/Y/Z values in µT** — useful for analyzing payload spin rate (the oscillating pattern reveals rotation)
 - **Compass heading** is NOT calculated — a spinning/tumbling payload makes heading data meaningless
+
+The TMAG5273 reports data natively in milliTesla (mT). The firmware multiplies by 1000 to convert to µT for CSV logging, keeping units consistent with typical geomagnetic field references (Earth's field is approximately 25–65 µT).
 
 ## GPS HAB Mode
 

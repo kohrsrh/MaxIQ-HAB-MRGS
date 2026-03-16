@@ -4,24 +4,24 @@ Complete step-by-step assembly guide for the MaxIQ MK10 HAB Flight Station.
 
 ---
 
-## Step 1 — Parts to Order
+## Step 1 — Parts List
 
-### Must Order
+### Breakout Sensors (for IPB boards)
 | Part | SparkFun SKU | Notes |
 |------|-------------|-------|
 | SparkFun Accelerometer Breakout - KX132-1211 (Qwiic) | SEN-17871 | High-g accel for burst capture |
-| SparkFun Triple Axis Magnetometer - MMC5983MA (Qwiic) | SEN-19895 | Magnetic field strength |
+| SparkFun Linear 3D Hall-Effect Sensor - TMAG5273 (Qwiic) | SEN-22932 | Magnetometer |
 
 ### Already Have — Confirmed
-| Item | Status | Notes |
-|------|--------|-------|
-| INA xChip (GPS - Quectel L76) | Confirmed in collection | Snaps onto xBus, no wiring needed |
-| ODA xChip (OLED 128x64) | Confirmed working | Snaps onto xBus, displays live data |
-| SparkFun OpenLog | On hand | Wires to IPP via jumper wires |
-| AS7265x Triad Spectroscopy | On hand | Wires to IPP via jumper wires |
-| DFRobot SEN0463 Geiger Counter | On hand | Wires to IPP via jumper wires |
-| IPP Expansion Board | On hand | Main breadboard for all wired components |
-| 18650 xChip (PLA) | On hand | Powers all electronics |
+| Item | Notes |
+|------|-------|
+| INA xChip (GPS - Quectel L76) | Snaps onto xBus, no wiring needed |
+| ODA xChip (OLED 128x64) | Snaps onto xBus, displays live data |
+| SparkFun OpenLog | Solders to IPB-B |
+| AS7265x Triad Spectroscopy | Solders to IPB-A |
+| DFRobot SEN0463 Geiger Counter | Solders to IPB-A |
+| IPB xBus Prototyping Boards (x2) | IPB-A: I2C sensors + Geiger; IPB-B: OpenLog |
+| 18650 xChip (PLA) | Powers all electronics |
 
 ---
 
@@ -29,18 +29,18 @@ Complete step-by-step assembly guide for the MaxIQ MK10 HAB Flight Station.
 
 Go to **Sketch → Include Library → Manage Libraries**. Search and install each:
 
-| # | Library Name | Author | Status |
-|---|-------------|--------|--------|
-| 1 | RadioLib | Jan Gromes | Install |
-| 2 | SparkFun SGP30 Arduino Library | SparkFun | Install |
-| 3 | SparkFun LIS2DH12 Arduino Library | SparkFun | Install |
-| 4 | Adafruit SHT31 Library | Adafruit | Install — click **Install All** |
-| 5 | SparkFun KX13X Arduino Library | SparkFun | Install |
-| 6 | SparkFun MMC5983MA Arduino Library | SparkFun | Install |
-| 7 | SparkFun AS7265X Arduino Library | SparkFun | Install |
-| 8 | Adafruit GPS Library | Adafruit | Install — for INA xChip |
-| 9 | Freenove WS2812 Lib for ESP32 | Freenove | Install |
-| 10 | SSD1306Ascii | greiman | Install — for ODA OLED display |
+| # | Library Name | Author | Notes |
+|---|-------------|--------|-------|
+| 1 | RadioLib | Jan Gromes | |
+| 2 | SparkFun SGP30 Arduino Library | SparkFun | |
+| 3 | SparkFun LIS2DH12 Arduino Library | SparkFun | |
+| 4 | Adafruit SHT31 Library | Adafruit | Click **Install All** |
+| 5 | SparkFun KX13X Arduino Library | SparkFun | |
+| 6 | SparkFun TMAG5273 Arduino Library | SparkFun | |
+| 7 | SparkFun AS7265X Arduino Library | SparkFun | |
+| 8 | Adafruit GPS Library | Adafruit | For INA xChip |
+| 9 | Freenove WS2812 Lib for ESP32 | Freenove | |
+| 10 | SSD1306Ascii | greiman | For ODA OLED display |
 
 Manual ZIP install (**Sketch → Include Library → Add .ZIP Library**):
 - **SPL06-007**: https://github.com/rv701/SPL06-007
@@ -53,125 +53,129 @@ Manual ZIP install (**Sketch → Include Library → Add .ZIP Library**):
 
 1. Unsnap all xChips except PPU and CWV
 2. Remove SD card from OpenLog
-3. Open `HAB_FlightStation.ino` (v3.3) in Arduino IDE
+3. Open `HAB_FlightStation.ino` (v3.4) in Arduino IDE
 4. Tools → Board → esp32 → **ESP32 Dev Module**
-5. Tools → Port → **COM7** (or your assigned port)
-6. Tools → Upload Speed → **115200**
-7. Click **Upload** — wait for `Hash of data verified`
-8. Snap all xChips back on
-9. Reconnect IPP jumper wire sensors
-10. Plug in USB — watch OLED and Neopixel
+5. Tools → PSRAM → **QSPI PSRAM**
+6. Tools → Port → **COM3** (or your assigned port)
+7. Tools → Upload Speed → **460800**
+8. Click **Upload** — wait for `Hash of data verified`
+9. Snap all xChips back on
 
-> **NOTE:** If upload fails with `No serial data received`, unplug USB, wait 10 seconds, replug and immediately click Upload.
-
----
-
-## Step 4 — IPP Wiring Guide
-
-The IPP board snaps into the Domino4 xBus. It has dedicated bus rails along all four edges. You will be using standard breadboard jumper wires for all connections — no soldering required.
-
-### Understanding Jumper Wires
-
-Breadboard jumper wires come in three types:
-- **Male-to-Male (M-M):** pin on both ends. Use for connecting two breadboard holes.
-- **Male-to-Female (M-F):** pin on one end, socket on other. Use when connecting to a header pin on a breakout board.
-- **Female-to-Female (F-F):** socket on both ends. Rarely needed for this build.
-
-> **NOTE:** For connecting SparkFun breakout boards to the IPP rails, you will typically use Male-to-Male jumper wires since both the breakout board headers and IPP holes accept male pins.
-
-### Understanding the IPP Rails
-
-Look at the IPP board. Along the top and bottom edges you will see labeled rows of holes:
-- **GND** — Ground (negative). Connect all GND pins here. Use black wires by convention.
-- **VCC** — 3.3V power. Connect all VCC/3V3 pins here. Use red wires by convention.
-- **SDA** — I2C data. Connect all SDA pins from breakout boards here.
-- **SCL** — I2C clock. Connect all SCL pins from breakout boards here.
-- **TXD** — Serial transmit (GPIO 17). OpenLog RXI connects here.
-
-> **NOTE:** Every hole in a labeled rail row is connected together. GND at the far left is the same as GND at the far right. Connect to whichever hole is closest to your component.
-
-### Wiring Table — All Breakout Boards
-
-| Component | Component Pin | Connect To | Wire Color | Notes |
-|-----------|--------------|------------|------------|-------|
-| SparkFun OpenLog | VCC | VCC rail | Red | 3.3V only — critical! |
-| SparkFun OpenLog | GND | GND rail | Black | |
-| SparkFun OpenLog | RXI | TXD pin (GPIO 17) | Any | Data from ESP32 to OpenLog |
-| SparkFun OpenLog | TXO | Leave unconnected | — | Not needed |
-| SparkFun OpenLog | GRN | Leave unconnected | — | Not needed |
-| SparkFun OpenLog | BLK | Leave unconnected | — | Not needed |
-| | | | | |
-| KX132 Accel | VCC / 3V3 | VCC rail | Red | |
-| KX132 Accel | GND | GND rail | Black | |
-| KX132 Accel | SDA | SDA rail | Blue | |
-| KX132 Accel | SCL | SCL rail | Yellow | |
-| | | | | |
-| MMC5983MA Mag | VCC / 3V3 | VCC rail | Red | |
-| MMC5983MA Mag | GND | GND rail | Black | |
-| MMC5983MA Mag | SDA | SDA rail | Blue | |
-| MMC5983MA Mag | SCL | SCL rail | Yellow | |
-| | | | | |
-| AS7265x Triad | VCC / 3V3 | VCC rail | Red | |
-| AS7265x Triad | GND | GND rail | Black | |
-| AS7265x Triad | SDA | SDA rail | Blue | |
-| AS7265x Triad | SCL | SCL rail | Yellow | |
-| | | | | |
-| DFRobot Geiger | VCC | VCC rail | Red | 3.3V — do not use 5V |
-| DFRobot Geiger | GND | GND rail | Black | |
-| DFRobot Geiger | SIG | GPIO 43 hole in grid | Any | Pulse signal to ESP32 |
-
-> **NOTE:** Color coding is a convention to help you stay organized, not a requirement. However using red for VCC and black for GND consistently will prevent accidentally swapping power and ground, which can damage components.
-
-### Step-by-Step Wiring Instructions
-
-#### Before You Start
-1. Unplug USB — never wire with power connected
-2. Snap the IPP onto the CWV xBus connector
-3. Lay out all breakout boards and jumper wires on your desk
-4. Identify the VCC, GND, SDA, SCL pins on each breakout board — check the silkscreen labels on the board
-
-#### Wire OpenLog First (Most Important)
-1. Place OpenLog on the IPP center grid or nearby
-2. Run red wire from OpenLog VCC to any VCC rail hole
-3. Run black wire from OpenLog GND to any GND rail hole
-4. Run a wire from OpenLog RXI to the TXD labeled hole on the IPP left side
-5. Leave TXO, GRN, BLK pins unconnected
-6. Insert FAT32 microSD card into OpenLog slot
-7. Power on — OpenLog green LED should blink then go solid
-8. Wait 2 minutes, power off, check SD card for LOG file with CSV data
-
-#### Wire Each I2C Sensor (Same Pattern for All)
-1. Place breakout board on IPP center grid
-2. Red wire: board VCC/3V3 pin → VCC rail
-3. Black wire: board GND pin → GND rail
-4. Blue wire: board SDA pin → SDA rail
-5. Yellow wire: board SCL pin → SCL rail
-6. Power on and check Neopixel — yellow means still missing sensors, green means all found
-7. Repeat for next sensor
-
-#### Wire Geiger Counter
-1. Red wire: Geiger VCC → VCC rail
-2. Black wire: Geiger GND → GND rail
-3. Wire: Geiger SIG → GPIO 43 hole in center grid
-
-#### Verify Before Each Power-On
-- VCC (red) goes to VCC rail — not GND rail
-- GND (black) goes to GND rail — not VCC rail
-- SDA and SCL not swapped
-- OpenLog RXI goes to TXD, not SDA or SCL
-- No bare wire ends touching each other
+> **NOTE:** If upload fails with `This chip is ESP32, not ESP32-S3`, you have the wrong board selected. Switch to **ESP32 Dev Module**.
 
 ---
 
-## Step 5 — xChip Snap-On Assembly
+## Step 4 — IPB Wiring Guide
 
-These chips require no wiring — they snap directly onto the CWV xBus connector. Order does not matter electrically but keep the stack manageable.
+The two IPB xBus prototyping boards replace the IPP breadboard. They snap into the Domino4 xBus chain using the same 6-pin connectors as all other xChips — no jumper wires needed for power or I2C. Sensor breakout boards connect via short soldered wires to the IPB through-hole pads.
+
+### Understanding the IPB Through-Hole Layout
+
+Each IPB has eight labeled signal rows running vertically down the center of the board:
+**VCC, SDA, SCL, VSRC, IO, TXD, RXD, GND**
+
+Each row has **three through-holes** in a horizontal line:
+- **Left two holes** — electrically identical, both connect to that signal. Use these for sensor wires. With two holes per row, two sensors can each get their own hole on shared signals (VCC, SDA, SCL, GND).
+- **Right single hole** — connects to the right-side xBus edge connector (backplane pass-through). Do not use this hole for sensor wires.
+
+> All wiring instructions below refer to the **left-column holes only**.
+
+### Board Assignment
+
+| Board | Sensors |
+|-------|---------|
+| **IPB-A** | KX132-1211, TMAG5273, AS7265x, Geiger counter signal |
+| **IPB-B** | SparkFun OpenLog |
+
+### I2C Address Reference
+
+| Sensor | Default I2C Address |
+|--------|-------------------|
+| KX132-1211 | 0x1F |
+| TMAG5273 | 0x22 |
+| AS7265x Triad | 0x49 (fixed) |
+
+No address conflicts — all three share the bus without any configuration changes.
+
+### IPB-A Wiring — KX132-1211 Accelerometer
+
+| KX132 Pin | IPB-A Hole | Signal |
+|-----------|-----------|--------|
+| VCC (3.3V) | VCC row — left hole 1 | Power |
+| GND | GND row — left hole 1 | Ground |
+| SDA | SDA row — left hole 1 | I2C Data |
+| SCL | SCL row — left hole 1 | I2C Clock |
+
+### IPB-A Wiring — TMAG5273 Magnetometer
+
+| TMAG5273 Pin | IPB-A Hole | Signal | Notes |
+|-------------|-----------|--------|-------|
+| VCC (3.3V) | VCC row — left hole 2 | Power | Never use VSRC — unregulated voltage will damage this sensor |
+| GND | GND row — left hole 2 | Ground | |
+| SDA | SDA row — left hole 2 | I2C Data | |
+| SCL | SCL row — left hole 2 | I2C Clock | |
+
+### IPB-A Wiring — AS7265x Triad Spectroscopy
+
+Both left holes in VCC, GND, SDA, and SCL are occupied by the KX132 and TMAG5273. For the AS7265x, solder its wires directly onto the existing solder joints at either left hole in each row.
+
+| AS7265x Pin | IPB-A Connection | Signal |
+|-------------|-----------------|--------|
+| VCC (3.3V) | Splice onto either left hole in VCC row | Power |
+| GND | Splice onto either left hole in GND row | Ground |
+| SDA | Splice onto either left hole in SDA row | I2C Data |
+| SCL | Splice onto either left hole in SCL row | I2C Clock |
+
+### IPB-A Wiring — Geiger Counter (DFRobot SEN0463)
+
+| Geiger Pin | IPB-A Hole | Signal | Notes |
+|-----------|-----------|--------|-------|
+| Signal/OUT | IO row — left hole 1 | GPIO 43 interrupt | Falling-edge, firmware counts pulses |
+| VCC | VCC row — splice | Power | Confirm module accepts 3.3V; if 5V required use VSRC row instead |
+| GND | GND row — splice | Ground | |
+
+> ⚠️ The IO pad carries 3.3V logic. If your Geiger module outputs a 5V signal, add a voltage divider on the signal wire before the IO hole.
+
+### IPB-B Wiring — SparkFun OpenLog
+
+Only one device on IPB-B, so only one hole per row is needed.
+
+| OpenLog Pin | IPB-B Hole | Signal | Notes |
+|------------|-----------|--------|-------|
+| VCC (3.3V) | VCC row — left hole 1 | Power | |
+| GND | GND row — left hole 1 | Ground | |
+| RXI | TXD row — left hole 1 | UART TX from CWV | CWV transmits, OpenLog receives and logs |
+| TXO | Not connected | — | Firmware does not read from OpenLog |
+
+> **Note on naming:** The TXD label on the IPB refers to the signal direction from the CWV's perspective. The OpenLog's RXI (receive input) correctly connects here — the CWV transmits data, the OpenLog receives and logs it.
+
+---
+
+## Step 5 — Connecting IPB Boards to the xChip Assembly
+
+> ⚠️ **Always power down (remove 18650 battery) before connecting or disconnecting IPB boards.**
+
+1. Remove the 18650 battery from the PLA xChip
+2. Disconnect USB if connected
+3. Select a position in the xChip chain for IPB-A — near the end of the chain is recommended for cable routing
+4. Align the 6-pin connector on IPB-A with the adjacent xChip connector and press firmly until fully seated
+5. Connect IPB-B to the chain in the same way, adjacent to IPB-A or at the end
+6. Mount the KX132, TMAG5273, AS7265x, and Geiger module near IPB-A and secure with foam adhesive, Velcro, or standoffs
+7. Mount the OpenLog near IPB-B
+8. Complete all soldered wiring per the tables above
+9. Insert a freshly FAT32-formatted microSD card into the OpenLog
+
+---
+
+## Step 6 — xChip Snap-On Assembly
+
+These chips require no wiring — they snap directly onto the CWV xBus connector.
 
 | xChip | Function | Notes |
 |-------|----------|-------|
 | EL4 | LoRa 433MHz transmitter | Must be snapped on for telemetry |
 | IGA | SGP30 VOC/CO2 sensor | Needs ~15 sec warmup after power-on |
-| IIA | LIS2DH12 accelerometer | Redundant with KX132 on IPP |
+| IIA | LIS2DH12 accelerometer | Redundant with KX132 on IPB-A |
 | IWA | SHT31 temp/humidity | Most reliable temp sensor in stack |
 | IWB | SPL06 barometer | Cross-check altitude with GPS |
 | ILB | Light sensor | Ambient light level |
@@ -181,23 +185,21 @@ These chips require no wiring — they snap directly onto the CWV xBus connector
 
 ---
 
-## Step 6 — Testing Before Flight
+## Step 7 — Testing Before Flight
 
 ### Startup Sequence
 1. Insert FAT32 microSD into OpenLog
-2. Snap all xChips on
-3. Connect all IPP jumper wire sensors
-4. Plug in USB (or flip battery switch)
-5. Watch OLED startup screen — should show LoRa/GPS/Sensor status
-6. Watch Neopixel — should go blue → then green (or yellow if sensors still being added)
+2. Snap all xChips on and connect IPB boards
+3. Reinstall 18650 battery
+4. Watch OLED startup screen — should show LoRa/GPS/Sensor status
+5. Watch Neopixel — should go blue → green (all OK) or yellow (sensor warning)
 
 ### OpenLog Verification Test
 1. Power on the full stack
-2. Wait 2 minutes
+2. Wait 2 minutes (at least one 30-second TX cycle)
 3. Power off
 4. Remove microSD from OpenLog
-5. Insert into PC
-6. Open LOG file — should contain CSV header row + data rows
+5. Insert into PC — open LOG file — should contain CSV header row + data rows
 
 ### GPS Lock Test
 1. Take the payload outside to an open area

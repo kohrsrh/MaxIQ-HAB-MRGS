@@ -9,9 +9,9 @@
 | 2 | SparkFun SGP30 | SparkFun SGP30 Arduino Library | SparkFun | IGA xChip VOC/CO2 |
 | 3 | SparkFun LIS2DH12 | SparkFun LIS2DH12 Arduino Library | SparkFun | IIA xChip accelerometer |
 | 4 | Adafruit SHT31 | Adafruit SHT31 Library | Adafruit | IWA xChip temp/humidity — click **Install All** for dependencies |
-| 5 | SparkFun KX13X | SparkFun KX13X Arduino Library | SparkFun | KX132 high-g accelerometer |
-| 6 | SparkFun MMC5983MA | SparkFun MMC5983MA Arduino Library | SparkFun | Magnetometer |
-| 7 | SparkFun AS7265X | SparkFun AS7265X Arduino Library | SparkFun | Triad Spectroscopy |
+| 5 | SparkFun KX13X | SparkFun KX13X Arduino Library | SparkFun | KX132 high-g accelerometer on IPB-A |
+| 6 | SparkFun TMAG5273 | SparkFun TMAG5273 Arduino Library | SparkFun | TMAG5273 magnetometer on IPB-A |
+| 7 | SparkFun AS7265X | SparkFun AS7265X Arduino Library | SparkFun | Triad Spectroscopy on IPB-A |
 | 8 | Adafruit GPS | Adafruit GPS Library | Adafruit | INA xChip GPS (Quectel L76) |
 | 9 | Freenove WS2812 | Freenove WS2812 Lib for ESP32 | Freenove | Neopixel status LED |
 | 10 | SSD1306Ascii | SSD1306Ascii | greiman | ODA OLED display |
@@ -40,6 +40,9 @@ The INA xChip uses a **Quectel L76** GPS chip, which uses the Adafruit GPS Libra
 ### GPS HAB Mode
 The firmware automatically sends `$PMTK886,3` to the GPS at startup. This enables HAB mode and raises the altitude limit from the default 10 km to 80 km. Without this command, the GPS will stop reporting position above 10 km — well below typical HAB float altitude.
 
+### TMAG5273 Notes
+The TMAG5273 library's `begin()` function returns **1 for success** (opposite of most SparkFun libraries). The firmware accounts for this. The constant used to enable all three axes is `TMAG5273_XYX_ENABLE` — the library name contains a typo (XYX instead of XYZ) but it correctly enables X, Y, and Z measurement.
+
 ## Board Package
 The ESP32 board package must be installed in Arduino IDE:
 
@@ -48,3 +51,5 @@ The ESP32 board package must be installed in Arduino IDE:
 3. Tools → Board → Boards Manager → search "esp32" → install **esp32 by Espressif Systems**
 
 Board selection: **Tools → Board → esp32 → ESP32 Dev Module**
+
+PSRAM setting: **Tools → PSRAM → QSPI PSRAM**
